@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Happy Birthday!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    /* ====== Page layout ====== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1);
+      background-size: 400% 400%;
+      animation: bgShift 15s ease infinite;
+      color: #fff;
+    }
+
+    @keyframes bgShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .card {
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 24px;
+      padding: 32px 24px;
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(10px);
+    }
+
+    /* ====== Title animation ====== */
+    .title {
+      font-size: clamp(2rem, 5vw, 2.6rem);
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #ffe26f, #ff9f68, #ffd1ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin-bottom: 24px;
+    }
+
+    /* ====== Animated messages ====== */
+    .message {
+      min-height: 56px;
+      font-size: 1.05rem;
+      margin-bottom: 24px;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    .message-text {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeUp 0.4s forwards;
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Typing caret effect */
+    .caret {
+      display: inline-block;
+      width: 8px;
+      margin-left: 3px;
+      border-radius: 4px;
+      background: #ffffff;
+      animation: blink 0.9s steps(1, end) infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      50.01%, 100% { opacity: 0; }
+    }
+
+    /* ====== Photo placeholder ====== */
+    .photo-frame {
+      margin: 0 auto 8px;
+      width: 260px;
+      height: 260px;
+      border-radius: 24px;
+      border: 2px dashed rgba(255, 255, 255, 0.7);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+
+    .photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-placeholder-text {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      padding: 0 16px;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 class="title">Happy Birthday, <span id="friend-name">Friend</span>! 🎉</h1>
+    <p class="subtitle">Wishing you all the smiles, cake, and chaos you can handle today. 🥳</p>
+
+    <div class="message">
+      <span id="message-text" class="message-text"></span>
+      <span class="caret"></span>
+    </div>
+
+    <!-- Photo placeholder: replace src with your real image path -->
+    <div class="photo-frame">
+      <!-- When you upload a real photo, change the src below, e.g. "my-photo.jpg" -->
+      <img id="birthday-photo" src="" alt="" style="display:none;" />
+      <span id="photo-placeholder" class="photo-placeholder-text">
+        Your photo will appear here once you upload it.
+      </span>
+    </div>
+    <p class="hint">(Replace this placeholder with a real picture of your friend 🎂)</p>
+  </div>
+
+  <script>
+    // ====== Customize this part ======
+    const friendName = "Sam"; // <-- put your friend's name here
+    const messages = [
+      "Another year older, but somehow still looking this good. 👑",
+      "May your day be full of memes, cake, and zero bugs in your code. 💻🍰",
+      "Here’s to more adventures, late-night chats, and ridiculous inside jokes. ✨",
+      "You deserve all the good things today and always. 💛"
+    ];
+    // Optional: if you know the photo filename, put it here (after uploading to GitHub)
+    const photoFileName = ""; // e.g. "sam-birthday.jpg"
+
+    // ====== No need to touch below unless you want to tweak behavior ======
+    document.getElementById("friend-name").textContent = friendName;
+
+    const messageEl = document.getElementById("message-text");
+    let msgIndex = 0;
+    let charIndex = 0;
+    const typingSpeed = 40;     // ms between letters
+    const pauseBetween = 1800;  // ms before next message starts
+
+    function typeMessage() {
+      const current = messages[msgIndex];
+      if (charIndex === 0) {
+        messageEl.textContent = "";
+        messageEl.classList.remove("message-text");
+        void messageEl.offsetWidth; // restart animation
+        messageEl.classList.add("message-text");
+      }
+
+      if (charIndex < current.length) {
+        messageEl.textContent += current.charAt(charIndex);
+        charIndex++;
+        setTimeout(typeMessage, typingSpeed);
+      } else {
+        charIndex = 0;
+        msgIndex = (msgIndex + 1) % messages.length;
+        setTimeout(typeMessage, pauseBetween);
+      }
+    }
+
+    typeMessage();
+
+    // Handle photo placeholder logic
+    const imgEl = document.getElementById("birthday-photo");
+    const placeholderEl = document.getElementById("photo-placeholder");
+
+    if (photoFileName) {
+      imgEl.src = photoFileName;
+      imgEl.style.display = "block";
+      placeholderEl.style.display = "none";
+    }
+  </script>
+</body>
+</html>
